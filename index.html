@@ -64,10 +64,10 @@
           var pageContent = document.body.innerHTML;
           localStorage.setItem('pageContent', pageContent);
           
-          // 生成二维码，指向当前页面URL
+          // 生成二维码，指向基础URL
           var qrcodeContainer = document.getElementById("qrcode");
           qrcodeContainer.innerHTML = '';
-          var currentUrl = window.location.href;
+          var currentUrl = window.location.href.split('?')[0]; // 移除现有参数
           var qrcode = new QRCode(qrcodeContainer, {
               text: currentUrl,
               width: 120,
@@ -93,12 +93,12 @@
           document.body.innerHTML = savedContent;
       }
       
-      // 生成二维码，指向当前页面URL
+      // 生成二维码，指向基础URL
       setTimeout(function() {
           var qrcodeContainer = document.getElementById("qrcode");
           if (qrcodeContainer) {
               qrcodeContainer.innerHTML = '';
-              var currentUrl = window.location.href;
+              var currentUrl = window.location.href.split('?')[0]; // 移除现有参数
               var qrcode = new QRCode(qrcodeContainer, {
                   text: currentUrl,
                   width: 120,
@@ -118,7 +118,7 @@
           var qrcodeContainer = document.getElementById("qrcode");
           if (qrcodeContainer) {
               qrcodeContainer.innerHTML = '';
-              var currentUrl = window.location.href;
+              var currentUrl = window.location.href.split('?')[0]; // 移除现有参数
               var qrcode = new QRCode(qrcodeContainer, {
                   text: currentUrl,
                   width: 120,
