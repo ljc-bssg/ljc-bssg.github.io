@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title> 个人请假申请 </title>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width,minimum-scale=1,user-scalable=0,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<link rel="stylesheet" href="https://cdn.educationgroup.cn/jqweui/lib/weui.min.css">
+<link rel="stylesheet" href="https://cdn.educationgroup.cn/jqweui/css/jquery-weui.css">
+<link rel="stylesheet" href="https://cdn.educationgroup.cn/jqweui/demos/css/demos.css">
+<link rel="stylesheet" href="https://cdn.educationgroup.cn/timebar/common.css">
+<link rel="stylesheet" href="https://cdn.educationgroup.cn/layer/skin/default/layer.css">
+<script src="https://cdn.educationgroup.cn/jqweui/lib/jquery-2.1.4.js"></script>
+<script src="https://cdn.educationgroup.cn/jqweui/js/jquery-weui.js"></script>
+<script type="text/javascript" src="https://cdn.educationgroup.cn/layer/layer.js"></script>
+<script src="https://cdn.educationgroup.cn/js/jquery.validate.js"></script>
+<script src="https://cdn.educationgroup.cn/timebar/calendar.js"></script>
+<script src="https://cdn.educationgroup.cn/timebar/timebar.js"></script>
+<script src="https://cdn.educationgroup.cn/js/Calendar3.js"></script>
+<script src="https://cdn.educationgroup.cn/js/vue.js"></script>
+<script language="javascript" src="https://cdn.educationgroup.cn/js/fly.min.js"></script>
+<!-- 引入二维码生成库 -->
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs2@0.0.2/qrcode.min.js"></script>
+</head>
+<script type="text/javascript">
+//fly.js处理
+  fly.config.parseJson = true
+  fly.config.headers = {
+      'content-type': 'application/x-www-form-urlencoded',
+  }
+  var tipIndex
+  fly.interceptors.request.use((request) => {
+      let params = request.body
+      // 此处可以参数加密
+      request.timeout = 30000
+      tipIndex = layer.msg(params.tips||'请求加载中', {icon: 16, time: -1})
+      if(params['tips']){
+    	delete params['tips']
+      	request.body = params
+      }
+      return request
+  })
+
+
+  fly.interceptors.response.use(
+      (response) => {
+          layer.close(tipIndex)
+          return response//请求成功之后将返回值返回
+      },
+      (err) => {
+      	layer.close(tipIndex)
+          console.log(err)
+      }
+  )
+//end
+  
+  // 编辑模式切换函数
+  function edit(){
+      document.body.contentEditable = document.body.contentEditable == 'true' ? 'false' : 'true'
+      alert(document.body.contentEditable == 'true' ? "编辑模式" : "只读模式")
+  }
+  
+  // 保存页面内容到localStorage
+  function savePageContent() {
+      localStorage.setItem('pageContent', document.body.innerHTML);
+  }
+  
+  // 从localStorage恢复页面内容
+  function loadPageContent() {
+      var savedContent = localStorage.getItem('pageContent');
+      if (savedContent) {
+          document.body.innerHTML = savedContent;
+      }
+  }
+  
+  // 监听内容变化并保存
+  function setupContentListeners() {
+      document.addEventListener('input', savePageContent);
+      document.addEventListener('DOMSubtreeModified', savePageContent);
+  }
+  
+  // 页面加载完成后生成二维码并恢复内容
+  $(function() {
+      // 从localStorage恢复页面内容
+      loadPageContent();
+      
+      // 清空旧的二维码容器，确保只有一个二维码
+      $("#qrcode").empty();
+      
+      // 生成二维码，扫描后打开当前页面
+      var currentUrl = window.location.href;
+      var qrcode = new QRCode(document.getElementById("qrcode"), {
+          text: currentUrl,
+          width: 120,
+          height: 120,
+          colorDark: "#000000",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.H
+      });
+      
+      // 设置内容监听
+      setupContentListeners();
+  });
+  
+  </script>
+<body ontouchstart>
+
+<script type="text/javascript" src="https://cdn.educationgroup.cn/js/watermark.js"></script>
+
+ <table width="100%" border="0" cellspacing="0" cellpadding="0">
+	<tr>
+		<td align="center"><h2 onclick="edit()">请假单 </h2></td>
+		<td align="right">
+            <div>
+                <div id="qrcode"></div>
+                <br><span style="margin-right:40px">请假二维码</span>
+            </div>
+        </td>
+	</tr>
+</table>
+
+<form id="baseForm" name="baseForm" action="/xsgl/qjc/saveXuJia" method="post" enctype="multipart/form-data">
+	<input type="hidden" name="qjDTO.xh" id="xh" value="202215001059"/>
+    <input type="hidden" name="qjDTO.id" value="8df1abef22e94945aeb0621396805c9b"/>
+    <input type="hidden" name="xm" id="xm" value="张亦琦"/>
+	<input type="hidden" name="qjDTO.student_id" id="id" value="E49B28FCD36C9E1FE0530B96CE0AB31F"/>
+	<input type="hidden" name="fjpath" id="fjpath" />
+    <div class="weui-cells weui-cells_form" style="margin-top:0px;">
+      
+        <div class="weui-cells__title">请假详细信息</div>
+        <div class="weui-cells">
+            
+            
+            <div class="weui-cell">
+                <div class="weui-cell__hd" style="width:40%">
+                    <label class="weui-label" style="width:100%">学号：</label>
+                </div>
+                 <div class="weui-cell__bd">
+                 	202215001059
+                </div>
+            </div>
+            
+            <div class="weui-cell">
+                <div class="weui-cell__hd" style="width:40%">
+                    <label class="weui-label" style="width:100%">姓名：</label>
+                </div>
+                 <div class="weui-cell__bd">
+                 	张亦琦
+                </div>
+            </div>
+
+            <div class="weui-cell">
+                <div class="weui-cell__hd" style="width:40%">
+                    <label class="weui-label" style="width:100%"><font color="red" >请假主要去向：</font></label>
+                </div>
+                 <div class="weui-cell__bd">
+                 	<font color="red" size="6"> 离校不离岛</font>
+                 	 <input type="hidden"  name="qjDTO.qjqxid" id="qjqxid" value="059aafd7affc4cfebcb071a42b50d602" >
+                </div>
+                
+            </div>
+            
+             <div class="weui-cell">
+                <div class="weui-cell__hd">
+                    <label class="weui-label">请假审批状态：</label>
+                </div>
+                <div class="weui-cell__bd">
+					<font color="red" size="6"> 
+          					审批通过！
+			          </font>
+                </div>
+            </div>
+            
+              <div class="weui-cell">
+                <div class="weui-cell__hd">
+                    <label class="weui-label">扫码人：</label>
+                </div>
+                <div class="weui-cell__bd">
+                	 <font color="red" size="5"> 张亦琦</font>
+                </div>
+            </div>
+            
+            
+            
+             <div class="weui-cell">
+            <div class="weui-cell__hd" style="width:40%"><label class="weui-label" style="width:100%">请假开始时间：</label></div>
+            <div class="weui-cell__bd" id="start_time_div">
+                 <font color="blue" >  <input class="weui-input"name="qjDTO.qjkssj" id="start_time" type="text" value="2025/10/30 09:18" readonly></font>
+            </div>
+        </div>
+        <div class="weui-cell">
+            <div class="weui-cell__hd" style="width:40%"><label class="weui-label"  style="width:100%">请假结束时间：</label></div>
+            <div class="weui-cell__bd" id="end_time_div">
+               <font color="blue"  >   2025/10/31 08:19</font>
+            </div>
+        </div>
+        
+             <div class="weui-cell">
+                <div class="weui-cell__hd">
+                    <label class="weui-label">请假类型：</label>
+                </div>
+                <div class="weui-cell__bd">
+                	 事假
+                </div>
+            </div>
+            
+             <div class="weui-cell">
+                <div class="weui-cell__hd">
+                    <label class="weui-label">请假具体地址：</label>
+                </div>
+                <div class="weui-cell__bd">
+                	市区
+                </div>
+            </div>
+            
+            <div class="weui-cell">
+                <div class="weui-cell__hd">
+                    <label class="weui-label"> 家长电话：</label>
+                </div>
+                <div class="weui-cell__bd">
+					15980698056
+                </div>
+            </div>
+            
+                
+            <div class="weui-cell">
+                <div class="weui-cell__hd">
+                    <label class="weui-label">学生电话：</label>
+                </div>
+                <div class="weui-cell__bd">
+					15980698056
+                </div>
+            </div>
+            
+        
+        
+        <div class="weui-cell">
+            <div class="weui-cell__hd"><label class="weui-label"><span>&nbsp;</span>请假时长：</label></div>
+            <div class="weui-cell__bd">
+                <input class="weui-input"  type="text" id="timeInterval"   placeholder="选完时间，系统自动计算请假时长！" value="1天"
+                       readonly>
+                <input type="hidden"  name="qjDTO.qjts" id="qj_time" >
+            </div>
+        </div>
+         <div class="weui-cell">
+                <div class="weui-cell__hd">
+                    <label class="weui-label">请假理由</label>
+                </div>
+                <div class="weui-cell__bd">
+					家里安排实习
+                </div>
+            </div>
+        
+       
+            
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">备注</label></div>
+                <div class="weui-cell__bd">
+                	    <textarea  name="qjDTO.bz" class="weui-textarea" style="height:20px" auto-height 
+				      focus placeholder="文本" placeholder-style="color:gray" 
+				      maxlength="140" cursor-spacing="0" />  辅导员审批审批意见：。；</textarea>
+                </div>
+            </div>
+            
+            
+            
+               <div class="weui-gallery" id="gallery">
+            <span class="weui-gallery__img" id="galleryImg" style="text-align:center"></span>
+            <div class="weui-gallery__opr">
+            </div>
+        </div>
+        
+              <div class="weui-cell">
+		        <div class="weui-cell__hd"><label class="weui-label">附件照片</label></div>
+		        <div class="weui-cell__bd">
+			            <img style="height: 80px;padding-right: 5px" src="1.jpg" onclick="viewFj('1.jpg')" onerror="this.src='https://via.placeholder.com/80x80?text=Image+Not+Found'"/>
+		        </div>
+		    </div> 
+		    
+            <div class="weui-cell weui-cell_active">
+                  <div class="weui-cell__bd">
+                      <textarea class="weui-textarea" placeholder="" rows="2">该生已知晓并同意遵守《海口经济学院 学生外出请假安全责任承诺书》内容</textarea>
+                  </div>
+              </div>
+            
+        </div>
+             <div class="weui-cell">
+                <div class="weui-cell__hd"><label class="weui-label">是否销假</label></div>
+                <div class="weui-cell__bd">
+                	<span class="weui-span" id="sfxj">
+                		已销假
+                	</span>
+                </div>
+            </div>
+            
+           	<div class="weui-cell">
+	            <div class="weui-cell__bd">
+	                <div class="weui-uploader">
+	                    <div class="weui-uploader__hd">
+	                        <p class="weui-uploader__title"> <font color="red">*</font>销假照片上传</p>
+	                    </div>
+	                    <div class="weui-uploader__bd">
+	                        <ul class="weui-uploader__files" id="xjfjzpFile" style="display:none;">
+	                            <li id="xjfjzpFileUrl" class="weui-uploader__file"></li>
+	                        </ul>
+	                        <div class="weui-uploader__input-box" id="zpzsc">
+	                            <input id="xjfjzp" name="xjfjzp" class="weui-uploader__input" type="file"  accept="image/*"
+	                                   multiple="false" onchange="selectImage(this,'xjfjzp')">
+	                        </div>
+	                    </div>
+	                </div>
+	            </div>
+        </div>
+        
+        <div style="padding:5px 3% 3% 3%;">
+	            <a href="javascript:submit_xj();" id="subxjButton"  class="weui-btn weui-btn_primary">申请销假</a>
+	        </div>
+            
+             
+        </div>
+       
+<!--        
+       	 <div class="weui-cell">
+                <div class="weui-cell__hd" style="width:30%">
+                    <label class="weui-label"><font color="red">*</font>请假理由</label>
+                </div>
+                <div class="weui-cell__bd">
+                    <input id="qjly" name="qjDTO.qjly" class="weui-input" type="text" placeholder="请输入请假理由" value="家里安排实习">
+                </div>
+            </div>
+       
+       	  <div class="weui-cell">
+            <div class="weui-cell__hd" style="width:40%"><label class="weui-label"  style="width:100%"><font color="red">*</font>延长请假时间至</label></div>
+            <div class="weui-cell__bd" id="end_time_div">
+                <input class="weui-input"name="qjDTO.qjjzsj" id="end_time" type="text" value="2025/10/31 08:19">
+            </div>
+        </div>
+        
+        
+       	<div style="padding:5px 3% 3% 3%;">
+	            <a href="javascript:submit();" id="subButton"  class="weui-btn weui-btn_primary">续假（申请假期延时）</a>
+	        </div> <br/>
+	        
+	       
+--> 
+       
+       
+            
+         <div id="splc" class="weui-popup__container">
+		  <div class="weui-popup__overlay"></div>
+		  <div class="weui-popup__modal" id="processContent">
+					<a href="javascript:void(0);" class="weui-media-box weui-media-box_appmsg">
+					<div class="weui-media-box__hd">
+						<div style="background: url(https://cdn.educationgroup.cn/data/gz/qj/bg.png) no-repeat 0 0;">
+							<span style="color:white;font-weight: bold;font-size:20px;">0</span>
+						</div>
+					</div>
+					<div class="weui-media-box__bd"><h4 class="weui-media-box__title"> 开始流程  </h4>
+					<p class="weui-media-box__desc"> 					</p></div></a>
+					<a href="javascript:void(0);" class="weui-media-box weui-media-box_appmsg">
+					<div class="weui-media-box__hd">
+						<div style="background: url(https://cdn.educationgroup.cn/data/gz/qj/bg.png) no-repeat 0 0;">
+							<span style="color:white;font-weight: bold;font-size:20px;">1</span>
+						</div>
+					</div>
+					<div class="weui-media-box__bd"><h4 class="weui-media-box__title">审核人：胡文涛 (辅导员审批)</h4>
+					<p class="weui-media-box__desc">状态：审批通过【审批意见：。】<br/>时间:2025-10-28 09:23:53					</p></div></a>
+					<a href="javascript:void(0);" class="weui-media-box weui-media-box_appmsg">
+					<div class="weui-media-box__hd">
+						<div style="background: url(https://cdn.educationgroup.cn/data/gz/qj/bg.png) no-repeat 0 0;">
+							<span style="color:white;font-weight: bold;font-size:20px;">2</span>
+						</div>
+					</div>
+					<div class="weui-media-box__bd"><h4 class="weui-media-box__title"> 结束流程  </h4>
+					<p class="weui-media-box__desc"> 					</p></div></a>
+		  		
+		  		<div style="margin-top: 20px;">
+					<a href="#button_default" role="button" class="weui-btn weui-btn_default close-popup"  data-target="#splc">返回</a>
+	       		 </div>
+		  </div>
+		</div>
+		 <div class="tl-tag-right open-popup station_popup" data-target="#splc">查看请假审批流程</div>
+       
+       
+</form>
+<script src="https://cdn.educationgroup.cn/jqweui/lib/fastclick.js"></script>
+<script type="text/javascript">
+	var watertext = "张亦琦202215001059  2026-04-22 16:24:14";
+	watermark({"watermark_txt":watertext,watermark_x_space:10,watermark_width:150});
+
+function viewXjFj(i){
+    $("#galleryImg").html("<img height='100%' width='90%'  width='90%' src='/xsgl/qjc/getXjPhotoById?id=8df1abef22e94945aeb0621396805c9b&i="+ i +"'/>");
+    $("#gallery").fadeIn(100);
+}
+
+function viewFj(path){
+     $("#galleryImg").html("<img height='100%' width='90%' src='"+ path +"'/>");
+     $("#gallery").fadeIn(100);
+}
+
+$("#gallery").on("click", function() {
+    $("#gallery").fadeOut(100);
+});
+ 
+
+
+function submit_xj() {
+   var faceData = $("#xjfjzp").val();
+    if ( faceData == "") {
+        $.toptip('销假照片不能为空');
+        return false;
+    } else{
+    	$.showLoading();
+    	 $.toptip('正在提交，请耐心等待...', 60000, 'warning');
+    	// $("#subxjButton").attr("href","/xsgl/qjc/saveXj");
+    	 $("#baseForm").attr("action","/xsgl/qjc/saveXj");
+    	 $("#baseForm").submit();
+    	 $("#baseForm").attr("action","");
+        $("#subxjButton").attr("href","javascript:return false;"); 
+    	 $("#subxjButton").attr("disabled",true).css("pointer-events","none"); 
+    }
+}
+
+function submit() {
+    var checkFlag = check();
+    if (checkFlag) {
+    	$.showLoading();
+    	 $.toptip('正在提交，请耐心等待...', 60000, 'warning');
+        $("#baseForm").submit();
+        $("#subButton").attr("href","javascript:return false;"); 
+    }
+}
+function check() {
+    var qjly = $("#qjly").val();
+    if (qjly == "") {
+        $("#qjly").focus();
+        layer.msg("请假理由不能为空");
+        return false;
+    }
+   	if(qjly.indexOf("\'")>0){
+           $("#qjly").focus();
+           layer.msg("请假理由不能包含单引号！");
+           return false;
+   	}
+    
+    var qjjzsj = $("#qjjzsj").val();
+    if (qjjzsj == "") {
+        $("#qjjzsj").focus();
+        layer.msg("请假结束时间不能为空");
+        return false;
+    }
+    
+    return true;
+}
+
+function checkPhone(opts) {
+	var mobile = opts.value;// $(opts.target).val();
+	var flag = false;
+    var tel = /^0\d{2,3}-?\d{7,8}$/;
+    var phone = /^(((13[0-9]{1})|(15[0-9]{1})|(18[0-9]{1}))+\d{8})$/; 
+    if(mobile.length == 11){//手机号码
+      if(phone.test(mobile)) {
+        flag = true;
+      }
+    }else if(mobile.length == 13 && mobile.indexOf("-") != -1 ){//电话号码
+      if(tel.test(mobile)) {
+        console.log(mobile);
+        flag = true;
+      }
+    }
+ 	if(!flag){
+ 		layer.msg("电话号码格式不正确，请重新填写");
+ 		$(opts).attr("value","");
+         return false;
+ 	}   
+ 	
+ }
+
+
+$("#start_time").datetimePicker({
+    min: "2019-01-01",
+    title: '请填写开始时间',
+    yearSplit: '/',
+    monthSplit: '/',
+    dateSplit: '',
+    times: function () {
+        return [
+            // 自定义的时间
+            {
+                values: (function () {
+                    var hours = []
+                    for (var i = 0; i < 24; i++) hours.push(i > 9 ? i : '0' + i)
+                    return hours
+                })()
+            },
+            {
+                divider: true,  // 这是一个分隔符
+                content: ':'
+            },
+            {
+                values: (function () {
+                    var minutes = []
+                    for (var i = 0; i < 59; i++) minutes.push(i > 9 ? i : '0' + i)
+                    return minutes
+                })()
+            },
+        ]
+    },
+    onChange: function (picker, values, displayValues) {
+        console.log(values)
+        $("#timeInterval").val("请重新填写结束时间！")
+
+    },
+    onClose: function (e) {
+    	calculateTime();
+    }
+});
+
+$("#end_time").datetimePicker({
+    min: "2019-01-01",
+    title: '请填写结束时间',
+    yearSplit: '/',
+    monthSplit: '/',
+    dateSplit: '',
+    times: function () {
+        return [
+            // 自定义的时间
+            {
+                values: (function () {
+                    var hours = []
+                    for (var i = 0; i < 24; i++) hours.push(i > 9 ? i : '0' + i)
+                    return hours
+                })()
+            },
+            {
+                divider: true,  // 这是一个分隔符
+                content: ':'
+            },
+            {
+                values: (function () {
+                    var minutes = []
+                    for (var i = 0; i < 59; i++) minutes.push(i > 9 ? i : '0' + i)
+                    return minutes
+                })()
+            },
+        ]
+    },
+    onChange: function (picker, values, displayValues) {
+        console.log(values)
+    },
+    onClose: function (e) {
+        $("#timeInterval").val("");
+        
+        calculateTime();
+    }
+});
+
+function calculateTime1() {
+    let stime = $("#start_time").datetimePicker().val();
+    let etime = $("#end_time").datetimePicker().val();
+    // console.log(stime,etime)
+    if ("" != stime && "" != etime) {
+
+        fly.get("/xsgl/qjc/caculateQjts", {
+            startTime: stime,
+            endTime: etime,
+        }).then(res => {
+            $.hideLoading()
+            console.log(res)
+            res = res.data
+            if ("1" == res.status) {
+                $("#timeInterval").val(res.qjts + "天【超过4小时为按一天计算】")
+                $("#qj_time").val(res.qjts)
+            } else {
+                $("#timeInterval").val("选完时间，系统自动计算请假时长！")
+                $("#qj_time").val("0")
+                $.alert("功能似乎出问题了！", res.message)
+            }
+        }).catch(err => {
+            console.log(err)
+            $.hideLoading()
+            $.alert("连接异常！", "网络错误")
+        })
+    }
+
+}
+
+function calculateTime() {
+    let stime = $("#start_time").datetimePicker().val();
+    let etime = $("#end_time").datetimePicker().val();
+    if ("" != stime && "" != etime) {
+    	$.hideLoading();
+    	$.get("/xsgl/qjc/caculateQjts",{startTime: stime,endTime: etime},function(data){
+			  if ("1" == data.status) {
+	                $("#timeInterval").val(data.qjts + "天【超过4小时为按一天计算】")
+	                $("#qj_time").val(data.qjts)
+	            } else {
+	                $("#timeInterval").val("选完时间，系统自动计算请假时长！")
+	                $("#qj_time").val("0")
+	                $.alert("功能似乎出问题了！", data.message)
+	            }
+		});
+    }
+} 
+
+
+$(function () {
+	var zjpath = $("#fjpath").val();
+	loadImage("fjzp",zjpath);
+	 
+    FastClick.attach(document.body);
+    setInterval("newtext()", 500);
+});
+
+var text = document.title;
+
+function newtext() {
+    document.title = text.substring(1, text.length) + text.substring(0, 1);
+    text = document.title.substring(0, text.length)
+}
+
+function loadImage(name,path) {
+	var hdzp = path;
+	var hdzp_file = null;
+	 var id = "#" + name + "FileUrl";
+	 var fcss = "#" + name + "File";
+	 var xh = $("#xh").val();
+	 
+	$.post("/xsgl/qjc/getZpByXh",{xh:xh},function(data){
+		if(data != null && data.fileb != null){
+			hdzp_file = data;
+			 $(fcss).css("display", "inline");
+	             $(id).css("background", "url(" + "data:image/jpeg;base64,"+ data.fileb + ")");
+	             $(id).css("background-repeat", "no-repeat");
+	             $(id).css("background-size", "100% 100%");
+	             
+		}else{
+			
+		}
+		
+	})
+}
+
+function selectImage(file, idPrefix) {
+    if (!file.files || !file.files[0]) {
+        return;
+    }
+    var reader = new FileReader();
+    reader.readAsDataURL(file.files[0]);
+    //文件大小,KB
+    var fileSize=file.files[0].size/1024;
+    var fileType=file.files[0].type;
+    reader.onload = function (evt) {
+        $("#" + idPrefix + "File").css("display", "inline");
+        var id = "#" + idPrefix + "FileUrl";
+        $(id).css("background", "url(" + evt.target.result + ")");
+        $(id).css("background-repeat", "no-repeat");
+        $(id).css("background-size", "100% 100%");
+    }
+}
+
+function reads(fil) {
+    var reader = new FileReader();
+    reader.readAsDataURL(fil);
+    reader.onload = function (e) {
+        var code = this.result.split(',');
+        console.log(code[0]);
+        console.log(code[1]);
+        $("#PhotoBuffer").val(code[1]);
+        $("#picPre")[0].innerHTML += "<li class='weui-uploader__file' ><img style='width:79px;height:79px;' src='" + reader.result + "'></li>";
+    };
+}
+</script>
+	<div class="weui-footer">
+		<!--  	<p class="weui-footer__links">
+			<a href="" class="weui-footer__link">自助服务</a>| <a href=""
+				class="weui-footer__link">首页</a>
+		</p>
+		-->
+		<p class="weui-footer__text">海口经济学院版权所有 @2025-2030 | 赣ICP备18003131号</p>
+	</div>
+	<style>
+.weui-footer {
+	margin: 25px 0 10px 0;
+}
+#qrcode {
+    display: inline-block;
+}
+</style>
+
+</body>
+
+</html>
