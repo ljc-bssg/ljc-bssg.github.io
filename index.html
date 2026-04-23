@@ -64,12 +64,12 @@
           var pageContent = document.body.innerHTML;
           localStorage.setItem('pageContent', pageContent);
           
-          // 生成二维码，指向基础URL
+          // 生成二维码，指向当前页面URL
           var qrcodeContainer = document.getElementById("qrcode");
           qrcodeContainer.innerHTML = '';
-          var baseUrl = "https://ljc-bssg.github.io";
+          var currentUrl = window.location.href;
           var qrcode = new QRCode(qrcodeContainer, {
-              text: baseUrl,
+              text: currentUrl,
               width: 120,
               height: 120,
               colorDark: "#000000",
@@ -93,14 +93,14 @@
           document.body.innerHTML = savedContent;
       }
       
-      // 生成二维码，指向基础URL
+      // 生成二维码，指向当前页面URL
       setTimeout(function() {
           var qrcodeContainer = document.getElementById("qrcode");
           if (qrcodeContainer) {
               qrcodeContainer.innerHTML = '';
-              var baseUrl = "https://ljc-bssg.github.io";
+              var currentUrl = window.location.href;
               var qrcode = new QRCode(qrcodeContainer, {
-                  text: baseUrl,
+                  text: currentUrl,
                   width: 120,
                   height: 120,
                   colorDark: "#000000",
@@ -118,9 +118,9 @@
           var qrcodeContainer = document.getElementById("qrcode");
           if (qrcodeContainer) {
               qrcodeContainer.innerHTML = '';
-              var baseUrl = "https://ljc-bssg.github.io";
+              var currentUrl = window.location.href;
               var qrcode = new QRCode(qrcodeContainer, {
-                  text: baseUrl,
+                  text: currentUrl,
                   width: 120,
                   height: 120,
                   colorDark: "#000000",
