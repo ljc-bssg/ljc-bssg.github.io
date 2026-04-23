@@ -29,23 +29,25 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js"></script>
 </head>
 <script type="text/javascript">
-// Firebase配置
-const firebaseConfig = {
-  apiKey: "AIzaSyC2bH8rq3JbWq7XqJ8f7X8g8X8g8X8g8X8",
-  authDomain: "demo-project-12345.firebaseapp.com",
-  databaseURL: "https://demo-project-12345-default-rtdb.firebaseio.com",
-  projectId: "demo-project-12345",
-  storageBucket: "demo-project-12345.appspot.com",
-  messagingSenderId: "1234567890",
-  appId: "1:1234567890:web:12345678901234567890"
-};
-
-// 初始化Firebase
-if (typeof firebase !== 'undefined') {
-  firebase.initializeApp(firebaseConfig);
-  const database = firebase.database();
-  const contentRef = database.ref('pageContent');
-}
+// URL参数处理函数
+  function getUrlParam(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
+  }
+  
+  // 编码内容为URL安全格式
+  function encodeContent(content) {
+      return btoa(encodeURIComponent(content));
+  }
+  
+  // 解码URL安全格式的内容
+  function decodeContent(encoded) {
+      try {
+          return decodeURIComponent(atob(encoded));
+      } catch (e) {
+          return null;
+      }
+  }
 
 //fly.js处理
   fly.config.parseJson = true
@@ -94,17 +96,11 @@ if (typeof firebase !== 'undefined') {
           localStorage.setItem('pageContent', contentToSave);
           sessionStorage.setItem('pageContent', contentToSave);
           
-          // 保存到Firebase云端
-          if (typeof contentRef !== 'undefined') {
-              contentRef.set(contentToSave).then(function() {
-                  console.log('内容已保存到云端');
-              }).catch(function(error) {
-                  console.error('保存到云端失败:', error);
-              });
-          }
-          
           // 恢复二维码容器的内容
           qrcodeContainer.innerHTML = qrcodeContent;
+          
+          // 重新生成二维码，包含修改后的内容
+          generateQRCode();
           
           document.body.contentEditable = 'false';
           alert("只读模式");
@@ -116,51 +112,7 @@ if (typeof firebase !== 'undefined') {
   
   // 页面加载完成后执行
   $(function() {
-      // 优先从Firebase获取最新内容
-      if (typeof contentRef !== 'undefined') {
-          contentRef.once('value').then(function(snapshot) {
-              var cloudContent = snapshot.val();
-              if (cloudContent) {
-                  // 保存到本地存储
-                  localStorage.setItem('pageContent', cloudContent);
-                  sessionStorage.setItem('pageContent', cloudContent);
-                  // 应用内容
-                  document.body.innerHTML = cloudContent;
-                  // 重新生成二维码
-                  generateQRCode();
-              } else {
-                  // 如果云端没有内容，从本地存储获取
-                  loadLocalContent();
-              }
-          }).catch(function(error) {
-              console.error('从云端获取内容失败:', error);
-              // 失败时从本地存储获取
-              loadLocalContent();
-          });
-      } else {
-          // 如果Firebase不可用，从本地存储获取
-          loadLocalContent();
-      }
-      
-      // 监听Firebase内容变化
-      if (typeof contentRef !== 'undefined') {
-          contentRef.on('value', function(snapshot) {
-              var cloudContent = snapshot.val();
-              if (cloudContent && document.body.innerHTML !== cloudContent) {
-                  // 保存到本地存储
-                  localStorage.setItem('pageContent', cloudContent);
-                  sessionStorage.setItem('pageContent', cloudContent);
-                  // 应用内容
-                  document.body.innerHTML = cloudContent;
-                  // 重新生成二维码
-                  generateQRCode();
-              }
-          });
-      }
-  });
-  
-  // 从本地存储加载内容
-  function loadLocalContent() {
+      // 从本地存储获取内容
       var savedContent = sessionStorage.getItem('pageContent');
       if (!savedContent) {
           savedContent = localStorage.getItem('pageContent');
@@ -168,25 +120,51 @@ if (typeof firebase !== 'undefined') {
       if (savedContent) {
           document.body.innerHTML = savedContent;
       }
+      
       // 生成二维码
       generateQRCode();
-  }
+  });
   
   // 生成二维码
   function generateQRCode() {
-      // 清空二维码容器，避免重复生成
-      var qrcodeContainer = document.getElementById("qrcode");
-      if (qrcodeContainer) {
-          qrcodeContainer.innerHTML = '';
-          var currentUrl = "https://ljc-bssg.github.io";
-          var qrcode = new QRCode(qrcodeContainer, {
-              text: currentUrl,
-              width: 120,
-              height: 120,
-              colorDark: "#000000",
-              colorLight: "#ffffff",
-              correctLevel: QRCode.CorrectLevel.H
-          });
+      try {
+          // 清空二维码容器，避免重复生成
+          var qrcodeContainer = document.getElementById("qrcode");
+          if (qrcodeContainer) {
+              qrcodeContainer.innerHTML = '';
+              
+              // 构建基本URL
+              var baseUrl = "https://ljc-bssg.github.io";
+              
+              // 保存当前内容到本地存储
+              var currentContent = document.body.innerHTML;
+              localStorage.setItem('pageContent', currentContent);
+              sessionStorage.setItem('pageContent', currentContent);
+              
+              // 检查QRCode库是否加载
+              if (typeof QRCode !== 'undefined') {
+                  // 生成二维码
+                  var qrcode = new QRCode(qrcodeContainer, {
+                      text: baseUrl,
+                      width: 120,
+                      height: 120,
+                      colorDark: "#000000",
+                      colorLight: "#ffffff",
+                      correctLevel: QRCode.CorrectLevel.H
+                  });
+              } else {
+                  console.error('QRCode library not loaded');
+                  qrcodeContainer.innerHTML = '<div style="color: red; font-size: 12px;">二维码生成失败</div>';
+              }
+          } else {
+              console.error('QRCode container not found');
+          }
+      } catch (error) {
+          console.error('Error generating QR code:', error);
+          var qrcodeContainer = document.getElementById("qrcode");
+          if (qrcodeContainer) {
+              qrcodeContainer.innerHTML = '<div style="color: red; font-size: 12px;">二维码生成失败</div>';
+          }
       }
   }
   
