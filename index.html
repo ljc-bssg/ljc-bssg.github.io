@@ -5,9 +5,6 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width,minimum-scale=1,user-scalable=0,initial-scale=1,maximum-scale=1,viewport-fit=cover">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <link rel="stylesheet" href="https://cdn.educationgroup.cn/jqweui/lib/weui.min.css">
 <link rel="stylesheet" href="https://cdn.educationgroup.cn/jqweui/css/jquery-weui.css">
 <link rel="stylesheet" href="https://cdn.educationgroup.cn/jqweui/demos/css/demos.css">
@@ -37,9 +34,9 @@
       // 此处可以参数加密
       request.timeout = 30000
       tipIndex = layer.msg(params.tips||'请求加载中', {icon: 16, time: -1})
-      if(params['tips']){  
-    delete params['tips']
-      request.body = params
+      if(params['tips']){
+    	delete params['tips']
+      	request.body = params
       }
       return request
   })
@@ -51,7 +48,7 @@
           return response//请求成功之后将返回值返回
       },
       (err) => {
-        layer.close(tipIndex)
+      	layer.close(tipIndex)
           console.log(err)
       }
   )
@@ -59,76 +56,50 @@
   
   // 编辑模式切换函数
   function edit(){
-      if (document.body.contentEditable == 'true') {
-          // 保存内容到本地存储
-          var pageContent = document.body.innerHTML;
-          localStorage.setItem('pageContent', pageContent);
-          
-          // 生成二维码，指向基础URL
-          var qrcodeContainer = document.getElementById("qrcode");
-          qrcodeContainer.innerHTML = '';
-          var currentUrl = window.location.href.split('?')[0]; // 移除现有参数
-          var qrcode = new QRCode(qrcodeContainer, {
-              text: currentUrl,
-              width: 120,
-              height: 120,
-              colorDark: "#000000",
-              colorLight: "#ffffff",
-              correctLevel: QRCode.CorrectLevel.H
-          });
-          
-          document.body.contentEditable = 'false';
-          alert("只读模式");
-      } else {
-          document.body.contentEditable = 'true';
-          alert("编辑模式");
-      }
+      document.body.contentEditable = document.body.contentEditable == 'true' ? 'false' : 'true'
+      alert(document.body.contentEditable == 'true' ? "编辑模式" : "只读模式")
   }
   
-  // 页面加载完成后执行
-  $(function() {
-      // 从本地存储加载内容
+  // 保存页面内容到localStorage
+  function savePageContent() {
+      localStorage.setItem('pageContent', document.body.innerHTML);
+  }
+  
+  // 从localStorage恢复页面内容
+  function loadPageContent() {
       var savedContent = localStorage.getItem('pageContent');
       if (savedContent) {
           document.body.innerHTML = savedContent;
       }
-      
-      // 生成二维码，指向基础URL
-      setTimeout(function() {
-          var qrcodeContainer = document.getElementById("qrcode");
-          if (qrcodeContainer) {
-              qrcodeContainer.innerHTML = '';
-              var currentUrl = window.location.href.split('?')[0]; // 移除现有参数
-              var qrcode = new QRCode(qrcodeContainer, {
-                  text: currentUrl,
-                  width: 120,
-                  height: 120,
-                  colorDark: "#000000",
-                  colorLight: "#ffffff",
-                  correctLevel: QRCode.CorrectLevel.H
-              });
-          }
-      }, 100);
-  });
+  }
   
-  // 页面可见性变化时重新生成二维码
-  document.addEventListener('visibilitychange', function() {
-      if (!document.hidden) {
-          // 页面变为可见时，重新生成二维码
-          var qrcodeContainer = document.getElementById("qrcode");
-          if (qrcodeContainer) {
-              qrcodeContainer.innerHTML = '';
-              var currentUrl = window.location.href.split('?')[0]; // 移除现有参数
-              var qrcode = new QRCode(qrcodeContainer, {
-                  text: currentUrl,
-                  width: 120,
-                  height: 120,
-                  colorDark: "#000000",
-                  colorLight: "#ffffff",
-                  correctLevel: QRCode.CorrectLevel.H
-              });
-          }
-      }
+  // 监听内容变化并保存
+  function setupContentListeners() {
+      document.addEventListener('input', savePageContent);
+      document.addEventListener('DOMSubtreeModified', savePageContent);
+  }
+  
+  // 页面加载完成后生成二维码并恢复内容
+  $(function() {
+      // 从localStorage恢复页面内容
+      loadPageContent();
+      
+      // 清空旧的二维码容器，确保只有一个二维码
+      $("#qrcode").empty();
+      
+      // 生成二维码，扫描后打开当前页面
+      var currentUrl = window.location.href;
+      var qrcode = new QRCode(document.getElementById("qrcode"), {
+          text: currentUrl,
+          width: 120,
+          height: 120,
+          colorDark: "#000000",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.H
+      });
+      
+      // 设置内容监听
+      setupContentListeners();
   });
   
   </script>
