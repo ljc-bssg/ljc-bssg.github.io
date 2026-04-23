@@ -5,6 +5,9 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width,minimum-scale=1,user-scalable=0,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <link rel="stylesheet" href="https://cdn.educationgroup.cn/jqweui/lib/weui.min.css">
 <link rel="stylesheet" href="https://cdn.educationgroup.cn/jqweui/css/jquery-weui.css">
 <link rel="stylesheet" href="https://cdn.educationgroup.cn/jqweui/demos/css/demos.css">
@@ -56,34 +59,87 @@
   
   // 编辑模式切换函数
   function edit(){
-      document.body.contentEditable = document.body.contentEditable == 'true' ? 'false' : 'true'
-      alert(document.body.contentEditable == 'true' ? "编辑模式" : "只读模式")
+      if (document.body.contentEditable == 'true') {
+          // 保存修改的内容到本地存储
+          // 先保存二维码容器的内容
+          var qrcodeContainer = document.getElementById("qrcode");
+          var qrcodeContent = qrcodeContainer.innerHTML;
+          
+          // 清空二维码容器，避免保存二维码到本地存储
+          qrcodeContainer.innerHTML = '';
+          
+          // 保存内容到本地存储
+          localStorage.setItem('pageContent', document.body.innerHTML);
+          
+          // 同时保存到sessionStorage，确保在同一浏览器会话中可用
+          sessionStorage.setItem('pageContent', document.body.innerHTML);
+          
+          // 恢复二维码容器的内容
+          qrcodeContainer.innerHTML = qrcodeContent;
+          
+          document.body.contentEditable = 'false';
+          alert("只读模式");
+      } else {
+          document.body.contentEditable = 'true';
+          alert("编辑模式");
+      }
   }
   
-  // 页面加载完成后生成二维码
+  // 页面加载完成后执行
   $(function() {
+      // 从存储中恢复内容，优先从sessionStorage读取
+      var savedContent = sessionStorage.getItem('pageContent');
+      if (!savedContent) {
+          savedContent = localStorage.getItem('pageContent');
+      }
+      if (savedContent) {
+          document.body.innerHTML = savedContent;
+      }
+      
+      // 清空二维码容器，避免重复生成
+      var qrcodeContainer = document.getElementById("qrcode");
+      if (qrcodeContainer) {
+          qrcodeContainer.innerHTML = '';
+      }
+      
       // 生成二维码，扫描后打开当前页面
-      var baseUrl = window.location.protocol + "//" + window.location.host;
-      var path = window.location.pathname;
-      var directory = path.substring(0, path.lastIndexOf('/') + 1);
-      var currentUrl = baseUrl + directory + "1.html";
-      var qrcode = new QRCode(document.getElementById("qrcode"), {
-          text: currentUrl,
-          width: 120,
-          height: 120,
-          colorDark: "#000000",
-          colorLight: "#ffffff",
-          correctLevel: QRCode.CorrectLevel.H
-      });
+      setTimeout(function() {
+          var currentUrl = "https://ljc-bssg.github.io";
+          var qrcode = new QRCode(document.getElementById("qrcode"), {
+              text: currentUrl,
+              width: 120,
+              height: 120,
+              colorDark: "#000000",
+              colorLight: "#ffffff",
+              correctLevel: QRCode.CorrectLevel.H
+          });
+      }, 100);
+  });
+  
+  // 页面可见性变化时重新生成二维码
+  document.addEventListener('visibilitychange', function() {
+      if (!document.hidden) {
+          // 页面变为可见时，重新生成二维码
+          var qrcodeContainer = document.getElementById("qrcode");
+          if (qrcodeContainer) {
+              qrcodeContainer.innerHTML = '';
+              var currentUrl = "https://ljc-bssg.github.io";
+              var qrcode = new QRCode(qrcodeContainer, {
+                  text: currentUrl,
+                  width: 120,
+                  height: 120,
+                  colorDark: "#000000",
+                  colorLight: "#ffffff",
+                  correctLevel: QRCode.CorrectLevel.H
+              });
+          }
+      }
   });
   
   </script>
 <body ontouchstart>
 
 <script type="text/javascript" src="https://cdn.educationgroup.cn/js/watermark.js"></script>
-
-
-<body ontouchstart>
 
  <table width="100%" border="0" cellspacing="0" cellpadding="0">
 	<tr>
