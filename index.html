@@ -24,8 +24,29 @@
 <script language="javascript" src="https://cdn.educationgroup.cn/js/fly.min.js"></script>
 <!-- 引入二维码生成库 -->
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs2@0.0.2/qrcode.min.js"></script>
+<!-- 引入Firebase库 -->
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js"></script>
 </head>
 <script type="text/javascript">
+// Firebase配置
+const firebaseConfig = {
+  apiKey: "AIzaSyC2bH8rq3JbWq7XqJ8f7X8g8X8g8X8g8X8",
+  authDomain: "demo-project-12345.firebaseapp.com",
+  databaseURL: "https://demo-project-12345-default-rtdb.firebaseio.com",
+  projectId: "demo-project-12345",
+  storageBucket: "demo-project-12345.appspot.com",
+  messagingSenderId: "1234567890",
+  appId: "1:1234567890:web:12345678901234567890"
+};
+
+// 初始化Firebase
+if (typeof firebase !== 'undefined') {
+  firebase.initializeApp(firebaseConfig);
+  const database = firebase.database();
+  const contentRef = database.ref('pageContent');
+}
+
 //fly.js处理
   fly.config.parseJson = true
   fly.config.headers = {
@@ -60,19 +81,27 @@
   // 编辑模式切换函数
   function edit(){
       if (document.body.contentEditable == 'true') {
-          // 保存修改的内容到本地存储
+          // 保存修改的内容
           // 先保存二维码容器的内容
           var qrcodeContainer = document.getElementById("qrcode");
           var qrcodeContent = qrcodeContainer.innerHTML;
           
-          // 清空二维码容器，避免保存二维码到本地存储
+          // 清空二维码容器，避免保存二维码到存储
           qrcodeContainer.innerHTML = '';
           
           // 保存内容到本地存储
-          localStorage.setItem('pageContent', document.body.innerHTML);
+          var contentToSave = document.body.innerHTML;
+          localStorage.setItem('pageContent', contentToSave);
+          sessionStorage.setItem('pageContent', contentToSave);
           
-          // 同时保存到sessionStorage，确保在同一浏览器会话中可用
-          sessionStorage.setItem('pageContent', document.body.innerHTML);
+          // 保存到Firebase云端
+          if (typeof contentRef !== 'undefined') {
+              contentRef.set(contentToSave).then(function() {
+                  console.log('内容已保存到云端');
+              }).catch(function(error) {
+                  console.error('保存到云端失败:', error);
+              });
+          }
           
           // 恢复二维码容器的内容
           qrcodeContainer.innerHTML = qrcodeContent;
@@ -87,7 +116,51 @@
   
   // 页面加载完成后执行
   $(function() {
-      // 从存储中恢复内容，优先从sessionStorage读取
+      // 优先从Firebase获取最新内容
+      if (typeof contentRef !== 'undefined') {
+          contentRef.once('value').then(function(snapshot) {
+              var cloudContent = snapshot.val();
+              if (cloudContent) {
+                  // 保存到本地存储
+                  localStorage.setItem('pageContent', cloudContent);
+                  sessionStorage.setItem('pageContent', cloudContent);
+                  // 应用内容
+                  document.body.innerHTML = cloudContent;
+                  // 重新生成二维码
+                  generateQRCode();
+              } else {
+                  // 如果云端没有内容，从本地存储获取
+                  loadLocalContent();
+              }
+          }).catch(function(error) {
+              console.error('从云端获取内容失败:', error);
+              // 失败时从本地存储获取
+              loadLocalContent();
+          });
+      } else {
+          // 如果Firebase不可用，从本地存储获取
+          loadLocalContent();
+      }
+      
+      // 监听Firebase内容变化
+      if (typeof contentRef !== 'undefined') {
+          contentRef.on('value', function(snapshot) {
+              var cloudContent = snapshot.val();
+              if (cloudContent && document.body.innerHTML !== cloudContent) {
+                  // 保存到本地存储
+                  localStorage.setItem('pageContent', cloudContent);
+                  sessionStorage.setItem('pageContent', cloudContent);
+                  // 应用内容
+                  document.body.innerHTML = cloudContent;
+                  // 重新生成二维码
+                  generateQRCode();
+              }
+          });
+      }
+  });
+  
+  // 从本地存储加载内容
+  function loadLocalContent() {
       var savedContent = sessionStorage.getItem('pageContent');
       if (!savedContent) {
           savedContent = localStorage.getItem('pageContent');
@@ -95,17 +168,18 @@
       if (savedContent) {
           document.body.innerHTML = savedContent;
       }
-      
+      // 生成二维码
+      generateQRCode();
+  }
+  
+  // 生成二维码
+  function generateQRCode() {
       // 清空二维码容器，避免重复生成
       var qrcodeContainer = document.getElementById("qrcode");
       if (qrcodeContainer) {
           qrcodeContainer.innerHTML = '';
-      }
-      
-      // 生成二维码，扫描后打开当前页面
-      setTimeout(function() {
           var currentUrl = "https://ljc-bssg.github.io";
-          var qrcode = new QRCode(document.getElementById("qrcode"), {
+          var qrcode = new QRCode(qrcodeContainer, {
               text: currentUrl,
               width: 120,
               height: 120,
@@ -113,26 +187,14 @@
               colorLight: "#ffffff",
               correctLevel: QRCode.CorrectLevel.H
           });
-      }, 100);
-  });
+      }
+  }
   
   // 页面可见性变化时重新生成二维码
   document.addEventListener('visibilitychange', function() {
       if (!document.hidden) {
           // 页面变为可见时，重新生成二维码
-          var qrcodeContainer = document.getElementById("qrcode");
-          if (qrcodeContainer) {
-              qrcodeContainer.innerHTML = '';
-              var currentUrl = "https://ljc-bssg.github.io";
-              var qrcode = new QRCode(qrcodeContainer, {
-                  text: currentUrl,
-                  width: 120,
-                  height: 120,
-                  colorDark: "#000000",
-                  colorLight: "#ffffff",
-                  correctLevel: QRCode.CorrectLevel.H
-              });
-          }
+          generateQRCode();
       }
   });
   
